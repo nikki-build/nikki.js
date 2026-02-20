@@ -67,8 +67,8 @@ In this mode, the SDK automatically loads configuration files from your website 
 /serviceToken.json
 
 These files must be accessible at:
-https://yourdomain.com/serviceDef.json
-https://yourdomain.com/serviceToken.json
+- https://yourdomain.com/serviceDef.json
+- https://yourdomain.com/serviceToken.json
 
 
 ##### Start the Service

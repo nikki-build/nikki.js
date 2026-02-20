@@ -183,14 +183,13 @@ srvInst.stop()
 Override these methods in your service class:
 
 
-| Method                        | Description                         |
-| ----------------------------- | ----------------------------------- |
-| `loadDefinitionsFromServer()` | Load config files from website root |
-| `loadServiceDefFile(file)`    | Load service definition from file   |
-| `loadServiceTokenFile(file)`  | Load token from file                |
-| `start()`                     | Connect to nikki.build              |
-| `stop()`                      | Disconnect                          |
-| `sendData(jsonData)`          | Send JSON data                      |
+| Callback            | Description                                                   |
+|---------------------|---------------------------------------------------------------|
+| `onConnected()`     | Triggered when a connection to nikki.build is successfully established. |
+| `onDisconnected()`  | Triggered when the connection is closed or lost.            |
+| `onError(errMsg)`   | Triggered whenever an error occurs.                          |
+| `onData(jsonData)`  | Triggered when data is received from another connected node. |
+
 
 
 ## 🛠 Available Methods
@@ -199,6 +198,9 @@ Override these methods in your service class:
 | `start()`            | Connect to nikki.build            |
 | `stop()`             | Disconnect from nikki.build       |
 | `sendData(jsonData)` | Send JSON data to connected nodes |
+| `loadDefinitionsFromServer()` | Load config files from website root |
+| `loadServiceDefFile(file)`    | Load service definition from file   |
+| `loadServiceTokenFile(file)`  | Load token from file                |
 
 
 

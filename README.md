@@ -57,29 +57,29 @@ import { nikkiServiceBase } from "nikki.js";
 There are two ways to initialize `nikki.js`.
 
 
-
 ### 🔹 Option A — Load Configuration from Server (Recommended)
 
-In this mode, the SDK automatically loads configuration files from your website root.
-
-**Required files (must exist at root path):**
-/serviceDef.json
-/serviceToken.json
-
-These files must be accessible at:
-- https://yourdomain.com/serviceDef.json
-- https://yourdomain.com/serviceToken.json
+use these function to set service definition and service token.
+- setServiceDef
+- setTokenDef
 
 
 ##### Start the Service
+
 ```typescript
 const service = new nikki.nikkiServiceBase();
 
-// Loads configuration automatically from root
-service.loadDefinitionsFromServer();
+// Loads configuration files
+
+let srvDef = {} // your serviceDef file content
+let srvToken = {} // your serviceToken file content
+
+service.setTokenDef(srvDef);
+service.setServiceDef(srvToken);
 
 // Start connection
 service.start();
+
 ```
 This is the cleanest setup for production deployments.
 

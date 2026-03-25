@@ -349,6 +349,32 @@ var nikkiServiceBaseImpl = class {
       return null;
     }
   }
+  async setServiceDef(serviceDef) {
+    try {
+      if (serviceDef && serviceDef.GuID && serviceDef.servID && serviceDef.name) {
+        this.servDef = serviceDef;
+        console.info("loaded service definition.");
+      } else {
+        console.error("Invalid service definition . Please check the files");
+      }
+    } catch (err) {
+      console.error("Error loading Nikki service files:", err);
+      return null;
+    }
+  }
+  async setTokenDef(serviceToken) {
+    try {
+      if (serviceToken && serviceToken.secrete && serviceToken.sessionID && serviceToken.wsAddr) {
+        this.token = serviceToken;
+        console.info("loaded service token .");
+      } else {
+        console.error("Invalid service definition or service token information. Please check the files");
+      }
+    } catch (err) {
+      console.error("Error loading Nikki service files:", err);
+      return null;
+    }
+  }
   loadServiceDefFile(event) {
     try {
       const file = event.target.files[0];

@@ -142,6 +142,8 @@ declare class nikkiServiceBaseImpl {
     getConnectAddress(srvDef: any, token: serviceTokenDef): string | undefined;
     loadFromUrl(): boolean;
     loadDefinitionsFromServer(): Promise<null | undefined>;
+    setServiceDef(serviceDef: any): Promise<null | undefined>;
+    setTokenDef(serviceToken: any): Promise<null | undefined>;
     loadServiceDefFile(event: any): void;
     loadServiceTokenFile(event: any): void;
     start(): Promise<void>;

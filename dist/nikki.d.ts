@@ -124,7 +124,7 @@ declare class wsHandlerImpl {
     sendMessage(msg: any): void;
 }
 
-declare class serviceBase {
+declare class nikkiServiceBaseImpl {
     protected servDef: any | undefined;
     protected token: serviceTokenDef | undefined;
     protected connectAddr: string | undefined;
@@ -156,7 +156,7 @@ declare class serviceBase {
     onData(data: wsServiceReceiveDataMsg): void;
 }
 
-declare class nikkiServiceBase extends serviceBase {
+declare class nikkiServiceBase extends nikkiServiceBaseImpl {
 }
 
 export { nikkiServiceBase };

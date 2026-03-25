@@ -275,7 +275,7 @@ var serviceUtils = class _serviceUtils extends serviceTokenDef {
 };
 
 // src/nikkiJsServiceBase.ts
-var serviceBase = class {
+var nikkiServiceBaseImpl = class {
   constructor() {
     this.lastMsgTime = 0;
     this.LOG_PREFIX = "[nikki.build]";
@@ -507,7 +507,7 @@ var serviceBase = class {
 };
 
 // src/index.ts
-var nikkiServiceBase = class extends serviceBase {
+var nikkiServiceBase = class extends nikkiServiceBaseImpl {
 };
 export {
   nikkiServiceBase

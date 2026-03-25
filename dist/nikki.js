@@ -9711,7 +9711,7 @@ var nikki = (() => {
   };
 
   // src/nikkiJsServiceBase.ts
-  var serviceBase = class {
+  var nikkiServiceBaseImpl = class {
     constructor() {
       this.lastMsgTime = 0;
       this.LOG_PREFIX = "[nikki.build]";
@@ -9943,7 +9943,7 @@ var nikki = (() => {
   };
 
   // src/index.ts
-  var nikkiServiceBase = class extends serviceBase {
+  var nikkiServiceBase = class extends nikkiServiceBaseImpl {
   };
   return __toCommonJS(src_exports);
 })();

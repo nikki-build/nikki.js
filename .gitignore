@@ -10,3 +10,4 @@
 
 # Keep the gitignore itself
 !.gitignore
+!README.md

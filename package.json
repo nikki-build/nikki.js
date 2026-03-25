@@ -1,0 +1,44 @@
+{
+  "name": "nikki.js",
+  "version": "0.2.4",
+  "description": "nikki.build JavaScript browser client library.",
+  "license": "UNLICENSED",
+  "author": "dev.nikki.build@gmail.com",
+  "main": "./dist/nikki.js",
+  "module": "./dist/nikki.mjs",
+  "browser": "./dist/nikki.min.js",
+  "types": "./dist/nikki.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/nikki.d.ts",
+      "import": "./dist/nikki.mjs",
+      "require": "./dist/nikki.js",
+      "default": "./dist/nikki.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "javascript",
+    "browser",
+    "client",
+    "nikki",
+    "realtime",
+    "diy",
+    "prototyping"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "rxjs": "^7.5.6"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "tsup": "^8.0.0",
+    "rimraf": "^5.0.0"
+  }
+}

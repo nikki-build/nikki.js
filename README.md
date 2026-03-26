@@ -96,11 +96,11 @@ This is the cleanest setup for production deployments.
 ```html
 <label>
     serviceDef.json:
-    <input type="file" accept=".json" onchange="service.loadDefinitionFile(event)">
+    <input type="file" accept=".json" onchange="service.loadServiceDefFile(event)">
 </label>
 <label>
     serviceToken.json:
-    <input type="file" accept=".json" onchange="service.loadTokenFile(event)">
+    <input type="file" accept=".json" onchange="service.loadServiceTokenFile(event)">
 </label>
 ```
 

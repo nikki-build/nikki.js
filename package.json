@@ -1,9 +1,9 @@
 {
   "name": "nikki.js",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "nikki.build JavaScript browser client library.",
   "author": "dev.nikki.build@gmail.com",
-   "main": "./dist/nikki.js",
+  "main": "./dist/nikki.js",
   "module": "./dist/nikki.mjs",
   "types": "./dist/nikki.d.ts",
   "exports": {

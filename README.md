@@ -59,7 +59,7 @@ There are two ways to initialize `nikki.js`.
 
 ### 🔹 Option A — Load Configuration from Server (Recommended)
 
-use these function to set service definition and service token.
+use these functions to set service definition and service token.
 - setServiceDef
 - setTokenDef
 

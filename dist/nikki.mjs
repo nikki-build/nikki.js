@@ -412,7 +412,7 @@ var nikkiServiceBaseImpl = class {
       console.error("exception while, loadServiceTokenFile ", e.message);
     }
   }
-  async start() {
+  start() {
     if (this.servDef && this.token) {
       this.connectAddr = this.getConnectAddress(this.servDef, this.token);
       this.startWithDef(this.servDef, this.token);

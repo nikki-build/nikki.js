@@ -28,6 +28,14 @@
     "diy",
     "prototyping"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nikki-build/nikki.js.git"
+  },
+  "homepage": "https://github.com/nikki-build/nikki.js",
+  "bugs": {
+    "url": "https://github.com/nikki-build/nikki.js/issues"
+  },
   "scripts": {
     "build": "tsup",
     "clean": "rimraf dist",

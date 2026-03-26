@@ -1,6 +1,6 @@
 {
   "name": "nikki.js",
-  "version": "0.3.4",
+  "version": "0.3.6",
   "description": "nikki.build JavaScript browser client library.",
   "author": "dev.nikki.build@gmail.com",
    "main": "./dist/nikki.js",

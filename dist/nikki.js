@@ -133,7 +133,7 @@ var wsHandlerImpl = class {
   }
   wsOnConnect() {
     try {
-      console.info("WebSocket connected.");
+      console.info("Playground connected.");
       const wstat = new wsStatusMsg();
       wstat.type = "Connected" /* Connected */;
       this.connectionStatSubject.next(wstat);
@@ -143,7 +143,7 @@ var wsHandlerImpl = class {
   }
   wsOnError(err) {
     try {
-      console.info("WebSocket error:", err);
+      console.info("Playground error:", err);
       const wstat = new wsStatusMsg();
       wstat.type = "Error" /* Error */;
       wstat.data = err;
@@ -154,7 +154,7 @@ var wsHandlerImpl = class {
   }
   wsOnClose() {
     try {
-      console.info("WebSocket closed.");
+      console.info("Playground closed.");
       const wstat = new wsStatusMsg();
       wstat.type = "DisConnected" /* DisConnected */;
       this.connectionStatSubject.next(wstat);
@@ -210,7 +210,7 @@ var wsHandlerImpl = class {
       if (this.wsHandl && this.wsHandl.readyState === WebSocket.OPEN) {
         this.wsHandl.send(JSON.stringify(msg));
       } else {
-        console.error("WebSocket is not connected.");
+        console.error("Playground is not connected.");
         const wstat = new wsStatusMsg();
         wstat.type = "sendingDataWhileDisconnected" /* sendingDataWhileDisconnected */;
         wstat.data = void 0;
@@ -532,7 +532,7 @@ var nikkiServiceBaseImpl = class {
           console.error(`Exceeding sending rate limits: allowed ${this.token.rateLimit} msgs / second`);
         }
       } else {
-        console.error("WebSocket is not connected.");
+        console.error("Playground is not connected.");
       }
     } catch (e) {
       console.error("Exception while sendMessage:", e.message);

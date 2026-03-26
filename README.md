@@ -74,8 +74,8 @@ const service = new nikki.nikkiServiceBase();
 let srvDef = {} // your serviceDef file content
 let srvToken = {} // your serviceToken file content
 
-service.setTokenDef(srvDef);
-service.setServiceDef(srvToken);
+service.setTokenDef(srvToken);
+service.setServiceDef(srvDef);
 
 // Start connection
 service.start();

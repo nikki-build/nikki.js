@@ -52,71 +52,12 @@ import { nikkiServiceBase } from "nikki.js";
 
 ---
 
-## 2 Initialize the Library
-
-There are two ways to initialize `nikki.js`.
-
-
-### 🔹 Option A — Load Configuration from Server (Recommended)
-
-use these functions to set service definition and service token.
-- setServiceDef
-- setTokenDef
-
-
-##### Start the Service
-
-```typescript
-const service = new nikki.nikkiServiceBase();
-
-// Loads configuration files
-
-let srvDef = {} // your serviceDef file content
-let srvToken = {} // your serviceToken file content
-
-service.setTokenDef(srvToken);
-service.setServiceDef(srvDef);
-
-// Start connection
-service.start();
-
-```
-This is the cleanest setup for production deployments.
-
-
-### 🔹 Option B — Load Configuration from File Input
-
-##### Useful for:
-* **Local testing**
-* **Manual configuration**
-* **Debugging**
-
----
-
-```html
-<label>
-    serviceDef.json:
-    <input type="file" accept=".json" onchange="service.loadServiceDefFile(event)">
-</label>
-<label>
-    serviceToken.json:
-    <input type="file" accept=".json" onchange="service.loadServiceTokenFile(event)">
-</label>
-```
-
-```typescript
-const service = new nikki.nikkiServiceBase();
-
-function init() {
-       service.start();
-}
-```
-
-
 
 
 Quick Start
 -----------
+
+
 
 ### 1. Create Your Service
 Extend the `nikkiServiceBase` class to handle your custom logic.
@@ -125,11 +66,11 @@ Extend the `nikkiServiceBase` class to handle your custom logic.
 import { nikkiServiceBase } from "nikki.js";
 
 export class MyService extends nikkiServiceBase {
-    onConnected(): void {
+    onConnect(): void {
         console.info("Connected to nikki.build");
     }
 
-    onDisconnected(): void {
+    onDisconnect(): void {
         console.info("Disconnected from nikki.build");
     }
 
@@ -178,6 +119,63 @@ const interval = setInterval(() => {
 srvInst.stop()
 ```
 
+
+## 2 Initialize the Library
+
+There are two ways to initialize `nikki.js`.
+
+
+### 🔹 Option A — Load Configuration from Server (Recommended)
+
+use these functions to set service definition and service token.
+- setServiceDef
+- setTokenDef
+
+
+##### Start the Service
+
+```typescript
+
+// dynamically Loads configuration files
+
+let srvDef = {} // your serviceDef file content
+let srvToken = {} // your serviceToken file content
+
+srvInst.setTokenDef(srvToken);
+srvInst.setServiceDef(srvDef);
+
+// Start connection
+srvInst.start();
+
+// todo : how to get the config files from playground?
+
+```
+This is the cleanest setup for production deployments.
+
+
+### 🔹 Option B — Load Configuration from File Input
+
+##### Useful for:
+* **Local testing**
+* **Manual configuration**
+* **Debugging**
+
+---
+
+```html
+<label>
+    serviceDef.json:
+    <input type="file" accept=".json" onchange="service.loadServiceDefFile(event)">
+</label>
+<label>
+    serviceToken.json:
+    <input type="file" accept=".json" onchange="service.loadServiceTokenFile(event)">
+</label>
+```
+
+
+
+
 ## 🔄 Lifecycle Methods
 
 Override these methods in your service class:
@@ -185,8 +183,8 @@ Override these methods in your service class:
 
 | Callback            | Description                                                   |
 |---------------------|---------------------------------------------------------------|
-| `onConnected()`     | Triggered when a connection to nikki.build is successfully established. |
-| `onDisconnected()`  | Triggered when the connection is closed or lost.            |
+| `onConnect()`     | Triggered when a connection to nikki.build is successfully established. |
+| `onDisconnect()`  | Triggered when the connection is closed or lost.            |
 | `onError(errMsg)`   | Triggered whenever an error occurs.                          |
 | `onData(jsonData)`  | Triggered when data is received from another connected node. |
 

@@ -280,20 +280,49 @@ var nikkiServiceBaseImpl = class {
     this.lastMsgTime = 0;
     this.LOG_PREFIX = "[nikki.build]";
     this.wsConnectionStatus = "Inactive" /* Inactive */;
+    this.isInitialized = false;
+    this.onstatusChanged = (status) => {
+      if (status.type == "Connected" /* Connected */) {
+        this.onConnect();
+      }
+      if (status.type == "DisConnected" /* DisConnected */) {
+        this.onDisconnect();
+      }
+      if (status.type == "Error" /* Error */) {
+        this.onError(status.data);
+      }
+    };
     this.ws = new wsHandlerImpl();
-    this.wsDataSubscription = this.ws.getWsDataSubject().subscribe({ next: this.onWsDataMsg.bind(this) });
-    this.wsStatusSubscription = this.ws.getWsStatusSubject().subscribe({ next: this.onstatusChanged.bind(this) });
   }
-  onstatusChanged(status) {
-    if (status.type == "Connected" /* Connected */) {
-      this.onConnect();
+  // 🔒 idempotent init
+  initSubscriptions() {
+    if (this.isInitialized) {
+      console.warn("[nikki] initSubscriptions already called. Skipping.");
+      return;
     }
-    if (status.type == "DisConnected" /* DisConnected */) {
-      this.onDisconnect();
+    if (this.wsDataSubscription || this.wsStatusSubscription) {
+      console.warn("[nikki] Subscriptions already exist. Skipping re-init.");
+      this.isInitialized = true;
+      return;
     }
-    if (status.type == "Error" /* Error */) {
-      this.onError(status.data);
-    }
+    this.wsDataSubscription = this.ws.getWsDataSubject().subscribe({
+      next: (data) => this.onWsDataMsg(data),
+      error: (err) => this.onError(err)
+    });
+    this.wsStatusSubscription = this.ws.getWsStatusSubject().subscribe({
+      next: (status) => this.onstatusChanged(status),
+      error: (err) => this.onError(err)
+    });
+    this.isInitialized = true;
+  }
+  // 🧹 cleanup (VERY IMPORTANT if you want restart support)
+  cleanupSubscriptions() {
+    console.log("[nikki] Cleaning up subscriptions...");
+    this.wsDataSubscription?.unsubscribe();
+    this.wsStatusSubscription?.unsubscribe();
+    this.wsDataSubscription = void 0;
+    this.wsStatusSubscription = void 0;
+    this.isInitialized = false;
   }
   onWsDataMsg(data) {
     try {
@@ -413,7 +442,8 @@ var nikkiServiceBaseImpl = class {
     }
   }
   start() {
-    if (this.servDef && this.token) {
+    this.initSubscriptions();
+    if (this.servDef && this.token && !this.isConnected()) {
       this.connectAddr = this.getConnectAddress(this.servDef, this.token);
       this.startWithDef(this.servDef, this.token);
     } else {
@@ -507,6 +537,7 @@ var nikkiServiceBaseImpl = class {
         }
       } else {
         console.error("Playground is not connected.");
+        status = false;
       }
     } catch (e) {
       console.error("Exception while sendMessage:", e.message);

@@ -85,7 +85,6 @@ var queryStringTokenKey = "token";
 var queryStringWsAddrKey = "wsAddr";
 var queryStringSrvNameKey = "name";
 var queryStringKey = "token";
-var outDataSizeMaxLimit = 3e3;
 var outDataSizeSegmentMaxLimit = 500;
 var reconnectIntervalInMilli = 6e6;
 
@@ -103,6 +102,9 @@ var wsHandlerImpl = class {
     this.wsHandl = void 0;
     this.shouldReconnect = true;
     this.reconnectTimeout = null;
+  }
+  getBufferedAmount() {
+    return this.wsHandl ? this.wsHandl.bufferedAmount : 0;
   }
   getConnectionStatus() {
     let status = false;
@@ -307,6 +309,21 @@ var nikkiServiceBaseImpl = class {
     this.LOG_PREFIX = "[nikki.build]";
     this.wsConnectionStatus = "Inactive" /* Inactive */;
     this.isInitialized = false;
+    // ==============================
+    // CONFIG (tune as needed)
+    // ==============================
+    this.MAX_OUTGOING_SIZE_BYTES = 1024 * 1024;
+    // 1MB
+    this.MAX_BUFFERED_AMOUNT_BYTES = 2 * 1024 * 1024;
+    // 2MB
+    this.MAX_QUEUE_SIZE = 200;
+    this.RATE_WINDOW_MS = 1e3;
+    // ==============================
+    // INTERNAL STATE
+    // ==============================
+    this.sendQueue = [];
+    this.sentTimestamps = [];
+    this.isFlushing = false;
     this.onstatusChanged = (status) => {
       if (status.type == "Connected" /* Connected */) {
         this.onConnect();
@@ -537,38 +554,109 @@ var nikkiServiceBaseImpl = class {
     }
     return nData;
   }
+  // ==============================
+  // SAFE BUFFER CHECK
+  // ==============================
+  getBufferedAmount() {
+    if (!this.ws) return 0;
+    return this.ws.bufferedAmount ?? this.ws.ws?.bufferedAmount ?? 0;
+  }
+  // ==============================
+  // PUBLIC API
+  // ==============================
   sendData(message) {
-    let status = false;
+    if (!message || typeof message !== "object" && typeof message !== "string" && typeof message !== "number") {
+      console.error("\u274C Invalid message");
+      return false;
+    }
+    if (!this.ws || !this.token || !this.servDef) {
+      console.error("\u274C Not initialized (ws/token/servDef missing)");
+      return false;
+    }
+    if (!this.ws.getConnectionStatus?.()) {
+      console.error("\u274C WebSocket not connected");
+      return false;
+    }
+    let strMsg;
     try {
-      if (!message) {
-        console.error("Trying to send invalid data.");
+      const srvData = this.getNodedata(message);
+      if (!srvData) {
+        console.error("\u274C getNodedata returned empty");
         return false;
       }
-      if (this.ws && this.token && this.ws.getConnectionStatus() && this.servDef) {
-        const timeDiff = Date.now() - this.lastMsgTime;
-        if (timeDiff > this.token.rateLimit * 1e3) {
-          const srvData = this.getNodedata(message);
-          if (srvData) {
-            const strMsg = JSON.stringify(srvData);
-            if (outDataSizeMaxLimit > strMsg.length) {
-              this.ws.sendMessage(strMsg);
-              this.lastMsgTime = Date.now();
-              status = true;
-            } else {
-              console.error(`Exceeded outgoing data size, it should be less than ${outDataSizeMaxLimit} bytes`);
-            }
-          }
-        } else {
-          console.error(`Exceeding sending rate limits: allowed ${this.token.rateLimit} msgs / second`);
-        }
-      } else {
-        console.error("Playground is not connected.");
-        status = false;
-      }
-    } catch (e) {
-      console.error("Exception while sendMessage:", e.message);
+      strMsg = JSON.stringify(srvData);
+    } catch (err) {
+      console.error("\u274C Data preparation failed:", err.message);
+      return false;
     }
-    return status;
+    const byteSize = new TextEncoder().encode(strMsg).length;
+    if (byteSize > this.MAX_OUTGOING_SIZE_BYTES) {
+      console.error(`\u274C Payload too large: ${byteSize} bytes`);
+      return false;
+    }
+    if (this.sendQueue.length >= this.MAX_QUEUE_SIZE) {
+      console.warn("\u26A0\uFE0F Send queue full. Dropping message.");
+      this.onBackpressure?.(this.sendQueue.length);
+      return false;
+    }
+    this.sendQueue.push(strMsg);
+    this.flushQueue();
+    return true;
+  }
+  flushQueue() {
+    if (this.isFlushing) return;
+    this.isFlushing = true;
+    const process = () => {
+      try {
+        const now = Date.now();
+        const RATE_LIMIT = Number(this.token?.rateLimit) || 1;
+        this.sentTimestamps = this.sentTimestamps.filter(
+          (ts) => now - ts < this.RATE_WINDOW_MS
+        );
+        if (this.sentTimestamps.length >= RATE_LIMIT) {
+          setTimeout(process, 50);
+          this.onRateLimit?.();
+          return;
+        }
+        if (this.sendQueue.length === 0) {
+          this.isFlushing = false;
+          return;
+        }
+        const buffered = this.getBufferedAmount();
+        if (buffered > this.MAX_BUFFERED_AMOUNT_BYTES) {
+          console.warn(`\u26A0\uFE0F WS buffer high (${buffered}). Pausing...`);
+          this.onBackpressure?.(buffered);
+          setTimeout(process, 100);
+          return;
+        }
+        const msg = this.sendQueue.shift();
+        try {
+          this.ws.sendMessage(msg);
+          this.sentTimestamps.push(now);
+          this.onSendSuccess?.(msg);
+        } catch (err) {
+          console.error("\u274C sendMessage failed:", err.message);
+          this.onSendError?.(err, msg);
+        }
+        setTimeout(process, 0);
+      } catch (err) {
+        console.error("\u274C flushQueue crash:", err);
+        this.isFlushing = false;
+      }
+    };
+    process();
+  }
+  onBackpressure(size) {
+    console.warn(`\u26A0\uFE0F Backpressure: buffer=${size}`);
+  }
+  onRateLimit() {
+    console.warn("\u23F3 Rate limited...");
+  }
+  onSendSuccess(msg) {
+    console.log("\u{1F4E4} Sent:", msg);
+  }
+  onSendError(err, msg) {
+    console.log("\u{1F4E4} Sent: onSendError", msg);
   }
   isConnected() {
     const status = this.ws.getConnectionStatus();

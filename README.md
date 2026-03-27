@@ -89,9 +89,7 @@ export class MyService extends nikkiServiceBase {
 Create an instance and start the connection:
 
 ```typescript
- const srvInst = new MyService()
-
-// Connect to nikki.build
+const srvInst = new MyService()
 srvInst.start()
 ```
 
